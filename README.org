@@ -8,15 +8,21 @@ that given a table of recipes and ingredients I should be able to
   5. Approximate the cost of the shopping list
 
 * Improvements to make
-** TODO Queries
-  + Need to figure out how to sort by number of occurances
-  + Need to calculate the cost
 ** TODO Structural
-  + Cup_to_grams needs to be Units_to_grams
-  + Units needs to be real instead of an integer
   + Need a pantry table with expiration and quantity owned.
     That's n:1 with ingredients.
-  + Need an index on names of stuff
+  + Need to standardize unit input to do calorie calculation
 ** TODO Other
-  + Needs to be much easier to input data
+  + Get started with psycopg2
+  + Write python functions to run queries
+  + Write python functions to prompt for new table entries
+** Changelog
+  + Changed recipe_id, ingredient_id -> id
+  + Switch to "in" instead of conditional
+  + Indexed names
+  + Sort "pantry search" by a count
+  + Changed cup_to_grams -> unit_to_grams
+  + Names are unique
+
+
 

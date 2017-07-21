@@ -1,16 +1,16 @@
 /* Make a recipe list and an ingredients list*/
 create table recipes (
   recipe_id serial primary key,
-  recipe_name varchar(50) not null,
+  recipe_name varchar(50) not null unique,
   instructions text,
   cooktime varchar (50)
 );
 
 create table ingredients (
   ingredient_id serial primary key,
-  ingredient_name varchar(50) not null,
+  ingredient_name varchar(50) not null unique,
   calories integer,
-  cup_to_grams integer,
+  unit_to_grams integer,
   price real
 );
 
@@ -29,6 +29,12 @@ create table recipesingredients (
   foreign key (ingredient_id) references ingredients (ingredient_id)
 );
 
+create index idx_igrname
+  on ingredients (ingredient_name);
+
+create index idx_recname
+  on recipes (recipe_name);
+
 /* Example add recipe
 insert into recipes (
   recipe_name,
@@ -46,7 +52,7 @@ values (
 insert into ingredients (
   ingredient_name,
   calories,
-  cup_to_grams,
+  unit_to_grams,
   price
 )
 values (
@@ -85,11 +91,11 @@ or recipe_id = 1;
 /* What ingredients are in this meal */
 select recipe_name, ingredient_name, quantity, units
 from recipesingredients
-join ingredients on ingredients.ingredient_id = recipesingredients.ingredient_id
-join recipes on recipes.recipe_id = recipesingredients.recipe_id
+join ingredients on ingredients.id = recipesingredients.ingredient_id
+join recipes on recipes.id = recipesingredients.recipe_id
 -- User input below --
 where recipe_name = null
-or recipes.recipe_id = 3;
+or recipes.id = 4;
 
 /* What ingredients are in some collection of meals */
 select 
@@ -97,36 +103,48 @@ select
   sum(quantity) as total_quantity,
   units
 from recipesingredients
-join ingredients on ingredients.ingredient_id = recipesingredients.ingredient_id
-join recipes on recipes.recipe_id = recipesingredients.recipe_id
+join ingredients on ingredients.id = recipesingredients.ingredient_id
+join recipes on recipes.id = recipesingredients.recipe_id
 -- User input below --
--- First meal --
-where recipe_name = null
-or recipes.recipe_id = 4
--- Second meal --
-or recipe_name = null
-or recipes.recipe_id = 3
--- Third meal --
-or recipe_name = null
-or recipes.recipe_id = null
+where recipe_name in (null)
+or recipes.id in (3,4)
 --
 group by ingredient_name, units;
 
+/* What recipes use some of these ingredients */
+select count(recipes.id) as count, recipe_name
+from recipesingredients
+join ingredients on ingredients.id = recipesingredients.ingredient_id
+join recipes on recipes.id = recipesingredients.recipe_id
+-- User input below --
+where ingredient_name in ('olive oil', 'lime juice', 'frozen corn', 'egg')
+--
+group by recipe_name
+order by count desc;
 
 /* What is the est cost of shopping for those ingredients */
-
-/* What recipes use some of these ingredients */
-select recipes.recipe_id, recipe_name
-from recipesingredients
-join ingredients on ingredients.ingredient_id = recipesingredients.ingredient_id
-join recipes on recipes.recipe_id = recipesingredients.recipe_id
+select sum(price) as total_price from recipesingredients
+join ingredients on ingredients.id = recipesingredients.ingredient_id
+join recipes on recipes.id = recipesingredients.recipe_id
 -- User input below --
-where ingredient_name = 'egg'
-or ingredient_name = 'smoked gouda';
-
-/* What recipes use some of these ingredients, sorted by which use more */
+where recipe_id in (1,2,3,4);
 
 /* How much time will I spend cooking this week? */
+select sum(cooktime) as cooktime from recipes
+where recipe_id in (2,3,4);
 
+
+/* Other useful functions */
+
+/* Modify column entry
+update recipes
+set cooktime = 40
+where recipe_id=4;
+*/
+
+/* Modify column type
+alter table ingredients
+  rename column cup_to_grams to unit_to_grams;
+*/
 
 
