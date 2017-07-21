@@ -1,0 +1,22 @@
+* About
+This is a place for me to learn postgreSQL. The main idea is
+that given a table of recipes and ingredients I should be able to
+  1. Be able to output cooking instructions for a recipe
+  2. Make a weekly shopping list
+  3. Calculate calories per meal
+  4. See which recipes work best with ingredients in my pantry and
+  5. Approximate the cost of the shopping list
+
+* Improvements to make
+** TODO Queries
+  + Need to figure out how to sort by number of occurances
+  + Need to calculate the cost
+** TODO Structural
+  + Cup_to_grams needs to be Units_to_grams
+  + Units needs to be real instead of an integer
+  + Need a pantry table with expiration and quantity owned.
+    That's n:1 with ingredients.
+  + Need an index on names of stuff
+** TODO Other
+  + Needs to be much easier to input data
+
