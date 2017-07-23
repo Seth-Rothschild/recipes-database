@@ -7,21 +7,26 @@ that given a table of recipes and ingredients I should be able to
   4. See which recipes work best with ingredients in my pantry and
   5. Approximate the cost of the shopping list
 
-* Improvements to make
-** TODO Structural
-  + Need a pantry table with expiration and quantity owned.
-    That's n:1 with ingredients.
-  + Need to standardize unit input to do calorie calculation
-** TODO Other
-  + Get started with psycopg2
-  + Write python functions to run queries
-  + Write python functions to prompt for new table entries
-** Changelog
+* What's coming next?
+Given that the database is partially filled, I need a way to
+interact with it in a more reasonable way. This can be
+broken into two main blocks of work:
+
+1. Have a script which walks the user through adding
+   ingredients to a new recipe.
+
+2. Write functions for each of the queries in the .sql file
+   so that they're accessible from anywhere.
+   
+It would be nice to have a fully featured UI, but that's
+outside of the scope of the project at the moment.
+
+** What's been fixed?
+  + Build the database from a csv
   + Changed recipe_id, ingredient_id -> id
   + Switch to "in" instead of conditional
   + Indexed names
   + Sort "pantry search" by a count
-  + Changed cup_to_grams -> unit_to_grams
   + Names are unique
 
 
