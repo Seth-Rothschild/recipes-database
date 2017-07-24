@@ -26,7 +26,7 @@ create table ingredients (
   price real
 );
 
-copy ingredients(ingredient_name, store_unit, price)
+copy ingredients(ingredient_name, store_unit, price,id)
 from '/Users/Seth/Desktop/Repositories/recipe-database/ingredients.csv'
 delimiter ',' csv header;
 
@@ -113,31 +113,31 @@ select id, recipe_name from recipes;
 
 /* What are the instructions for this meal */
 select instructions from recipes
-where recipe_name = 'Hard Boiled Eggs'
-or recipe_id = 1;
+where recipe_id = 21;
 
 /* What ingredients are in this meal */
-select recipe_name, ingredient_name, quantity, units
+select recipe_name, ingredient_name, quantity, unit
 from recipesingredients
 join ingredients on ingredients.id = recipesingredients.ingredient_id
 join recipes on recipes.id = recipesingredients.recipe_id
 -- User input below --
 where recipe_name = null
-or recipes.id = 4;
+or recipes.id in (26);
 
 /* What ingredients are in some collection of meals */
 select 
   ingredient_name, 
   sum(quantity) as total_quantity,
-  units
+  unit
 from recipesingredients
 join ingredients on ingredients.id = recipesingredients.ingredient_id
 join recipes on recipes.id = recipesingredients.recipe_id
 -- User input below --
 where recipe_name in (null)
-or recipes.id in (3,4)
+or recipes.id in (36,37,4,11)
 --
-group by ingredient_name, units;
+group by ingredient_name, unit
+order by ingredient_name;
 
 /* What recipes use some of these ingredients */
 select count(recipes.id) as count, recipe_name
