@@ -31,11 +31,77 @@ class Recipe(object):
             raise RuntimeError('You already have this ingredient')
         else:
             self.ingredientList = self.ingredientList + ingredient
+
     
-    def savetoDB(self, attr):
+    def savetoDB(self):
         # Search to see if there's already a recipe
         # Modify if exists, otherwise insert
-        return 0
+        cur.execute(""" select id, recipe_name from recipes """)
+        reciperesults = cur.fetchall()
+        database_recipes = [row[1] for row in reciperesults]
+
+        cur.execute(""" select id, ingredient_name from ingredients """)
+        ingredientresults = cur.fetchall()
+        database_ingredients = [row[1] for row in ingredientresults]
+        localingredients = [item[0] for item in self.ingredientList]
+
+        # Step 1: if recipe exists ask to modify. If not, insert into database.
+        # Also, flag that there might be existing recipeingredients
+        if self.name in database_recipes:
+            marker = 1
+            query1 = raw_input('Recipe exists, modify? (y,n): ')
+            if query1 != 'y':
+                raise RuntimeError('Recipe not modified')
+            cur.execute(
+                """ 
+                update recipes set
+                (cooktime, instructions, notes) =
+                (%s, %s, %s) where recipe_name = %s;""", 
+                (self.cooktime, self.instructions, self.notes, self.name))
+            con.commit()
+        else:
+            marker = 0
+            print 'recipe does not exist'
+            newRecId = len(database_recipes)+1
+            cur.execute(
+                """insert into recipes 
+                (id, recipe_name, cooktime, instructions, notes) 
+                values (%s, %s, %s, %s, %s);""", 
+                (newRecId, self.name, self.cooktime, self.instructions, self.notes))
+            con.commit()
+
+        # Step 2: for every ingredient, check that it's in the ingredients table and update
+        counter = len(ingredientresults)
+        for ingredient in localingredients:
+            if ingredient not in database_ingredients:
+                print ingredient
+                query2 = raw_input('does not exist, add to db? (y,n): ')
+                if query2 != 'y':
+                    raise RuntimeError('Recipe not added to DB')
+                counter += 1
+                cur.execute("""insert into ingredients (id, ingredient_name) values (%s, %s);""", (counter, ingredient))
+                database_ingredients.append(ingredient)
+                con.commit()
+                print 'Ingredient added to database!'
+
+        # Step 3: Wipe existing recipeingredients if nontrivial and build new ones
+        if marker == 1:
+            query3 = raw_input('Wiping potential recipesingredients, proceed? (y,n): ')
+            if query1 != 'y':
+                raise RuntimeError('Recipe ingredients unmodified')
+        cur.execute(
+            """delete from recipesingredients
+            where recipe_id = %s""",
+            (recipeNameToID(self.name),))
+        for ingredient in self.ingredientList:
+            cur.execute(
+                """insert into recipesingredients
+                (recipe_id, ingredient_id, quantity, unit)
+                values (%s, %s, %s, %s);""",
+            (recipeNameToID(self.name), ingNameToID(ingredient[0]), ingredient[1], ingredient[2]))
+
+        con.commit()
+        print "Database Updated!"
 
     def modify(self, attr):
         # An interactive function to modify attributes of a recipe
@@ -142,3 +208,4 @@ def shopping(recipes):
 
 def closeDatabaseConnection():
     con.close      
+
